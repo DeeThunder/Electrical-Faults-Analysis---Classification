@@ -1,0 +1,23 @@
+{
+  "timestamp": "2026-01-08T12:59:43.140216",
+  "hyperparameters": {
+    "DATA_FILE": "classData.csv",
+    "TIME_STEPS": 10,
+    "TEST_SIZE": 0.2,
+    "VALIDATION_SPLIT": 0.2,
+    "RANDOM_STATE": 42,
+    "CNN_FILTERS_1": 64,
+    "CNN_FILTERS_2": 128,
+    "CNN_KERNEL_SIZE": 3,
+    "LSTM_UNITS": 100,
+    "DROPOUT_RATE": 0.3,
+    "DENSE_UNITS": 64,
+    "BATCH_SIZE": 32,
+    "EPOCHS": 50,
+    "LEARNING_RATE": 0.001,
+    "EARLY_STOPPING_PATIENCE": 10,
+    "MODEL_SAVE_PATH": "best_cnn_lstm_model.h5",
+    "HISTORY_SAVE_PATH": "training_history.csv",
+    "HYPERPARAMS_SAVE_PATH": "hyperparameters_log.json"
+  }
+}
