@@ -19,8 +19,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import (
     classification_report, confusion_matrix,
-    accuracy_score, precision_score, recall_score, f1_score
+    accuracy_score, precision_score, recall_score, f1_score,
+    roc_curve, auc, precision_recall_curve, average_precision_score
 )
+from sklearn.preprocessing import label_binarize
 import tensorflow as tf
 from tensorflow import keras
 
@@ -131,6 +133,87 @@ def plot_classwise_f1_scores(y_true, y_pred, class_names, save_path='../results/
     plt.savefig(save_path, dpi=300, bbox_inches='tight')
     print(f"✓ Class-wise F1 scores plot saved to {save_path}")
     plt.close()
+
+
+def plot_roc_curves(y_true, y_pred_probs, class_names, save_path='../results/visualizations/roc_curves.png'):
+    """Create ROC curves for all classes (One-vs-Rest approach)."""
+    n_classes = len(class_names)
+    
+    # Binarize the labels for multiclass ROC
+    y_true_bin = label_binarize(y_true, classes=range(n_classes))
+    
+    # Compute ROC curve and AUC for each class
+    fpr = dict()
+    tpr = dict()
+    roc_auc = dict()
+    
+    for i in range(n_classes):
+        fpr[i], tpr[i], _ = roc_curve(y_true_bin[:, i], y_pred_probs[:, i])
+        roc_auc[i] = auc(fpr[i], tpr[i])
+    
+    # Plot all ROC curves
+    plt.figure(figsize=(12, 8))
+    colors = plt.cm.Set3(np.linspace(0, 1, n_classes))
+    
+    for i, color in enumerate(colors):
+        plt.plot(fpr[i], tpr[i], color=color, lw=2.5,
+                label=f'{class_names[i]} (AUC = {roc_auc[i]:.3f})')
+    
+    # Plot diagonal line (random classifier)
+    plt.plot([0, 1], [0, 1], 'k--', lw=2, label='Random Classifier (AUC = 0.500)')
+    
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('False Positive Rate', fontsize=13, fontweight='bold')
+    plt.ylabel('True Positive Rate', fontsize=13, fontweight='bold')
+    plt.title('ROC Curves - Multiclass Classification (One-vs-Rest)', fontsize=15, fontweight='bold', pad=20)
+    plt.legend(loc='lower right', fontsize=10, framealpha=0.9)
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    print(f"✓ ROC curves saved to {save_path}")
+    plt.close()
+    
+    return roc_auc
+
+
+def plot_pr_curves(y_true, y_pred_probs, class_names, save_path='../results/visualizations/pr_curves.png'):
+    """Create Precision-Recall curves for all classes."""
+    n_classes = len(class_names)
+    
+    # Binarize the labels
+    y_true_bin = label_binarize(y_true, classes=range(n_classes))
+    
+    # Compute PR curve and Average Precision for each class
+    precision = dict()
+    recall = dict()
+    avg_precision = dict()
+    
+    for i in range(n_classes):
+        precision[i], recall[i], _ = precision_recall_curve(y_true_bin[:, i], y_pred_probs[:, i])
+        avg_precision[i] = average_precision_score(y_true_bin[:, i], y_pred_probs[:, i])
+    
+    # Plot all PR curves
+    plt.figure(figsize=(12, 8))
+    colors = plt.cm.Set3(np.linspace(0, 1, n_classes))
+    
+    for i, color in enumerate(colors):
+        plt.plot(recall[i], precision[i], color=color, lw=2.5,
+                label=f'{class_names[i]} (AP = {avg_precision[i]:.3f})')
+    
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('Recall', fontsize=13, fontweight='bold')
+    plt.ylabel('Precision', fontsize=13, fontweight='bold')
+    plt.title('Precision-Recall Curves - Multiclass Classification', fontsize=15, fontweight='bold', pad=20)
+    plt.legend(loc='best', fontsize=10, framealpha=0.9)
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    print(f"✓ PR curves saved to {save_path}")
+    plt.close()
+    
+    return avg_precision
 
 
 def print_detailed_metrics(y_true, y_pred, class_names):
@@ -275,6 +358,19 @@ def main():
     plot_training_history()
     plot_classwise_f1_scores(y_test_seq, y_pred, class_names)
     
+    # Generate ROC and PR curves
+    roc_auc_scores = plot_roc_curves(y_test_seq, y_pred_probs, class_names)
+    pr_ap_scores = plot_pr_curves(y_test_seq, y_pred_probs, class_names)
+    
+    # Print AUC and AP scores
+    print("\nROC AUC Scores:")
+    for i, class_name in enumerate(class_names):
+        print(f"  {class_name}: {roc_auc_scores[i]:.4f}")
+    
+    print("\nAverage Precision Scores:")
+    for i, class_name in enumerate(class_names):
+        print(f"  {class_name}: {pr_ap_scores[i]:.4f}")
+    
     # ========================================================================
     # STEP 6: Save Results
     # ========================================================================
@@ -295,6 +391,8 @@ def main():
     print("  ✓ confusion_matrix.png - Confusion matrix heatmap")
     print("  ✓ training_history.png - Training curves")
     print("  ✓ classwise_f1_scores.png - Class-wise F1 scores")
+    print("  ✓ roc_curves.png - ROC curves (One-vs-Rest)")
+    print("  ✓ pr_curves.png - Precision-Recall curves")
     print("  ✓ evaluation_metrics.txt - Detailed metrics report")
     print()
     print("=" * 80)

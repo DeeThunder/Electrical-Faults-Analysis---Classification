@@ -108,6 +108,42 @@ python src/evaluate_model.py
 
 ## 🏗️ Architecture
 
+### Model Flow Diagram
+
+```mermaid
+flowchart TD
+    A["Raw CSV Data"] --> B["Data Loading & Preparation"]
+    B --> C["Feature Extraction"]
+    C --> D["Train/Test Split"]
+    D --> E["StandardScaler Normalization"]
+    E --> F["Sequence Generation"]
+    
+    F --> G["CNN-LSTM Model"]
+    
+    G --> H["CNN Block 1"]
+    H --> I["CNN Block 2"]
+    I --> J["LSTM Layer"]
+    J --> K["Dense Layer"]
+    K --> L["Output Layer"]
+    
+    L --> M["Predictions"]
+    M --> N["Evaluation Metrics"]
+    
+    N --> O["Confusion Matrix"]
+    N --> P["ROC Curves"]
+    N --> Q["PR Curves"]
+    N --> R["F1 Scores"]
+    
+    style G fill:#e1f5ff
+    style H fill:#fff3e0
+    style I fill:#fff3e0
+    style J fill:#f3e5f5
+    style K fill:#e8f5e9
+    style L fill:#e8f5e9
+```
+
+### Layer Architecture
+
 ```
 Input (10 timesteps, 6 features)
     ↓
@@ -124,6 +160,8 @@ Dense (6, Softmax)
 
 **Parameters:** 125,142 (488 KB)
 
+**Detailed Architecture:** See [`model_architecture.txt`](model_architecture.txt) for complete layer-by-layer breakdown
+
 ## 📚 Documentation
 
 For detailed documentation, see [`docs/README_CNN_LSTM.md`](docs/README_CNN_LSTM.md)
@@ -138,10 +176,15 @@ For detailed documentation, see [`docs/README_CNN_LSTM.md`](docs/README_CNN_LSTM
 
 ## 📊 Visualizations
 
-All visualizations are available in `results/visualizations/`:
-- Confusion matrix showing prediction accuracy per class
-- Training history curves (accuracy & loss)
-- Class-wise F1 score comparison
+All visualizations are automatically generated in `results/visualizations/`:
+
+- **Confusion Matrix** - Prediction accuracy per class with heatmap
+- **Training History** - Accuracy & loss curves over epochs
+- **Class-wise F1 Scores** - Performance comparison across fault types
+- **ROC Curves** - Receiver Operating Characteristic (One-vs-Rest) with AUC scores
+- **PR Curves** - Precision-Recall curves with Average Precision scores
+
+Run `python src/evaluate_model.py` to generate all visualizations.
 
 ## 🎓 Academic Use
 
@@ -156,4 +199,4 @@ Educational project for academic purposes.
 
 ## 👤 Author
 
-Developed as part of a final year project on electrical fault detection and classification.
+Developed for academic purposes as part of a 400 level project on electrical fault detection and classification.

@@ -1,0 +1,252 @@
+================================================================================
+CNN-LSTM MODEL ARCHITECTURE
+Electrical Fault Classification System
+================================================================================
+
+MODEL OVERVIEW
+--------------
+Name: CNN_LSTM_FaultClassifier
+Type: Hybrid Deep Learning Model (CNN + LSTM)
+Task: Multiclass Time-Series Classification
+Classes: 6 (No Fault, LG, LL, LLG, LLL, LLLG)
+Input: (10 timesteps, 6 features)
+Output: 6-class probability distribution
+
+================================================================================
+LAYER-BY-LAYER ARCHITECTURE
+================================================================================
+
+Layer 1: Conv1D (conv1d_1)
+--------------------------
+Type: 1D Convolutional Layer
+Filters: 64
+Kernel Size: 3
+Activation: ReLU
+Padding: Same
+Input Shape: (10, 6)
+Output Shape: (10, 64)
+Parameters: 1,216
+
+Layer 2: BatchNormalization (batch_norm_1)
+-------------------------------------------
+Type: Batch Normalization
+Output Shape: (10, 64)
+Parameters: 256
+
+Layer 3: MaxPooling1D (maxpool_1)
+----------------------------------
+Type: Max Pooling
+Pool Size: 2
+Output Shape: (5, 64)
+Parameters: 0
+
+Layer 4: Dropout (dropout_1)
+-----------------------------
+Type: Dropout Regularization
+Rate: 0.3 (30%)
+Output Shape: (5, 64)
+Parameters: 0
+
+Layer 5: Conv1D (conv1d_2)
+--------------------------
+Type: 1D Convolutional Layer
+Filters: 128
+Kernel Size: 3
+Activation: ReLU
+Padding: Same
+Input Shape: (5, 64)
+Output Shape: (5, 128)
+Parameters: 24,704
+
+Layer 6: BatchNormalization (batch_norm_2)
+-------------------------------------------
+Type: Batch Normalization
+Output Shape: (5, 128)
+Parameters: 512
+
+Layer 7: MaxPooling1D (maxpool_2)
+----------------------------------
+Type: Max Pooling
+Pool Size: 2
+Output Shape: (2, 128)
+Parameters: 0
+
+Layer 8: Dropout (dropout_2)
+-----------------------------
+Type: Dropout Regularization
+Rate: 0.3 (30%)
+Output Shape: (2, 128)
+Parameters: 0
+
+Layer 9: LSTM (lstm)
+--------------------
+Type: Long Short-Term Memory
+Units: 100
+Return Sequences: False
+Dropout: 0.3
+Recurrent Dropout: 0.2
+Input Shape: (2, 128)
+Output Shape: (100,)
+Parameters: 91,600
+
+Layer 10: Dense (dense_1)
+-------------------------
+Type: Fully Connected Layer
+Units: 64
+Activation: ReLU
+Input Shape: (100,)
+Output Shape: (64,)
+Parameters: 6,464
+
+Layer 11: Dropout (dropout_3)
+------------------------------
+Type: Dropout Regularization
+Rate: 0.4 (40%)
+Output Shape: (64,)
+Parameters: 0
+
+Layer 12: Dense (output)
+------------------------
+Type: Output Layer (Fully Connected)
+Units: 6
+Activation: Softmax
+Input Shape: (64,)
+Output Shape: (6,)
+Parameters: 390
+
+================================================================================
+MODEL SUMMARY
+================================================================================
+
+Total Parameters: 125,142
+Trainable Parameters: 125,142
+Non-trainable Parameters: 0
+Model Size: ~488 KB (saved as .h5)
+
+================================================================================
+HYPERPARAMETERS
+================================================================================
+
+Architecture Hyperparameters:
+-----------------------------
+- CNN Filters (Layer 1): 64
+- CNN Filters (Layer 2): 128
+- CNN Kernel Size: 3
+- LSTM Units: 100
+- Dense Layer Units: 64
+- Dropout Rate (CNN): 0.3
+- Dropout Rate (Dense): 0.4
+- Recurrent Dropout: 0.2
+
+Training Hyperparameters:
+-------------------------
+- Optimizer: Adam
+- Learning Rate: 0.001
+- Loss Function: Sparse Categorical Crossentropy
+- Batch Size: 32
+- Epochs: 50 (with early stopping)
+- Validation Split: 0.2
+
+Preprocessing:
+--------------
+- Normalization: StandardScaler (z-score normalization)
+- Sequence Length: 10 timesteps
+- Features: 6 (Ia, Ib, Ic, Va, Vb, Vc)
+
+================================================================================
+ARCHITECTURE FLOW DIAGRAM
+================================================================================
+
+Input Data (Raw CSV)
+        |
+        v
+[Preprocessing & Normalization]
+        |
+        v
+Time-Series Sequences (10 timesteps × 6 features)
+        |
+        v
+┌───────────────────────────────────────┐
+│     CNN FEATURE EXTRACTION BLOCK      │
+├───────────────────────────────────────┤
+│  Conv1D(64) → BatchNorm → MaxPool     │
+│           ↓                           │
+│       Dropout(0.3)                    │
+│           ↓                           │
+│  Conv1D(128) → BatchNorm → MaxPool    │
+│           ↓                           │
+│       Dropout(0.3)                    │
+└───────────────────────────────────────┘
+        |
+        v
+┌───────────────────────────────────────┐
+│    LSTM TEMPORAL LEARNING BLOCK       │
+├───────────────────────────────────────┤
+│     LSTM(100 units)                   │
+│  dropout=0.3, recurrent_dropout=0.2   │
+└───────────────────────────────────────┘
+        |
+        v
+┌───────────────────────────────────────┐
+│    DENSE CLASSIFICATION BLOCK         │
+├───────────────────────────────────────┤
+│    Dense(64, ReLU)                    │
+│           ↓                           │
+│       Dropout(0.4)                    │
+│           ↓                           │
+│    Dense(6, Softmax)                  │
+└───────────────────────────────────────┘
+        |
+        v
+Output: Fault Class Probabilities [6 classes]
+        |
+        v
+Predicted Fault Type
+
+================================================================================
+PERFORMANCE METRICS
+================================================================================
+
+Overall Performance:
+-------------------
+- Accuracy: 78.01%
+- Precision: 77.53%
+- Recall: 78.01%
+- F1-Score: 77.47%
+
+Class-wise Performance:
+----------------------
+| Fault Type      | Accuracy | F1-Score |
+|-----------------|----------|----------|
+| No Fault (0000) | 97.01%   | 95.18%   |
+| LG Fault (1001) | 93.33%   | 88.24%   |
+| LLG Fault (1011)| 88.50%   | 88.11%   |
+| LL Fault (0110) | 80.50%   | 86.10%   |
+| LLL Fault (0111)| 55.05%   | 50.21%   |
+| LLLG Fault (1111)| 33.04%  | 38.27%   |
+
+================================================================================
+KEY FEATURES
+================================================================================
+
+1. Temporal Awareness
+   - LSTM layer captures time-series dependencies
+   - Learns patterns across 10 timesteps
+
+2. Automatic Feature Extraction
+   - CNN layers extract relevant spatial features
+   - Hierarchical feature learning (64 → 128 filters)
+
+3. Regularization
+   - Batch Normalization for stable training
+   - Dropout layers prevent overfitting
+   - Early stopping with patience=10
+
+4. Production Ready
+   - Saved model weights (.h5)
+   - Preprocessing artifacts (scaler, label encoder)
+   - Comprehensive evaluation metrics
+
+================================================================================
+END OF ARCHITECTURE DOCUMENT
+================================================================================
