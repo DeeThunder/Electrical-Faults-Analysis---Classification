@@ -39,14 +39,14 @@ plt.rcParams['figure.figsize'] = (12, 8)
 plt.rcParams['font.size'] = 11
 
 
-def load_trained_model(model_path='best_cnn_lstm_model.h5'):
+def load_trained_model(model_path='../models/best_cnn_lstm_model.h5'):
     """Load the trained CNN-LSTM model."""
     model = keras.models.load_model(model_path)
     print(f"✓ Loaded model from {model_path}")
     return model
 
 
-def plot_confusion_matrix(y_true, y_pred, class_names, save_path='confusion_matrix.png'):
+def plot_confusion_matrix(y_true, y_pred, class_names, save_path='../results/visualizations/confusion_matrix.png'):
     """Create and save confusion matrix heatmap."""
     cm = confusion_matrix(y_true, y_pred)
     
@@ -63,7 +63,7 @@ def plot_confusion_matrix(y_true, y_pred, class_names, save_path='confusion_matr
     plt.close()
 
 
-def plot_training_history(history_path='training_history.csv', save_path='training_history.png'):
+def plot_training_history(history_path='../results/metrics/training_history.csv', save_path='../results/visualizations/training_history.png'):
     """Plot training and validation metrics over epochs."""
     history_df = pd.read_csv(history_path)
     
@@ -97,7 +97,7 @@ def plot_training_history(history_path='training_history.csv', save_path='traini
     plt.close()
 
 
-def plot_classwise_f1_scores(y_true, y_pred, class_names, save_path='classwise_f1_scores.png'):
+def plot_classwise_f1_scores(y_true, y_pred, class_names, save_path='../results/visualizations/classwise_f1_scores.png'):
     """Create bar plot of class-wise F1 scores."""
     report = classification_report(y_true, y_pred, target_names=class_names, output_dict=True)
     
@@ -170,7 +170,7 @@ def print_detailed_metrics(y_true, y_pred, class_names):
         print(f"{class_name:8s}: {correct:4d}/{total:4d} correct ({class_acc*100:6.2f}%)")
 
 
-def save_metrics_to_file(y_true, y_pred, class_names, filepath='evaluation_metrics.txt'):
+def save_metrics_to_file(y_true, y_pred, class_names, filepath='../results/metrics/evaluation_metrics.txt'):
     """Save all metrics to a text file."""
     with open(filepath, 'w') as f:
         f.write("=" * 80 + "\n")
@@ -213,7 +213,7 @@ def main():
     print("-" * 80)
     
     # Load data
-    X, y, label_encoder = load_and_prepare_data('classData.csv', verbose=False)
+    X, y, label_encoder = load_and_prepare_data('../data/classData.csv', verbose=False)
     class_names = label_encoder.classes_
     
     # Split (same as training)
@@ -222,7 +222,7 @@ def main():
     )
     
     # Load preprocessing artifacts
-    scaler, _ = load_preprocessing_artifacts()
+    scaler, _ = load_preprocessing_artifacts('../models')
     
     # Normalize
     _, X_test_norm, _ = normalize_features(X_train, X_test, method='standard', verbose=False)
@@ -241,7 +241,7 @@ def main():
     print("STEP 2: Loading trained model...")
     print("-" * 80)
     
-    model = load_trained_model('best_cnn_lstm_model.h5')
+    model = load_trained_model('../models/best_cnn_lstm_model.h5')
     
     # ========================================================================
     # STEP 3: Generate Predictions

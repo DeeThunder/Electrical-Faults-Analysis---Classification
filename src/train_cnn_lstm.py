@@ -50,7 +50,7 @@ tf.random.set_seed(42)
 # ============================================================================
 HYPERPARAMETERS = {
     # Data parameters
-    'DATA_FILE': 'classData.csv',
+    'DATA_FILE': '../data/classData.csv',
     'TIME_STEPS': 10,
     'TEST_SIZE': 0.2,
     'VALIDATION_SPLIT': 0.2,
@@ -71,9 +71,9 @@ HYPERPARAMETERS = {
     'EARLY_STOPPING_PATIENCE': 10,
     
     # Output paths
-    'MODEL_SAVE_PATH': 'best_cnn_lstm_model.h5',
-    'HISTORY_SAVE_PATH': 'training_history.csv',
-    'HYPERPARAMS_SAVE_PATH': 'hyperparameters_log.json'
+    'MODEL_SAVE_PATH': '../models/best_cnn_lstm_model.h5',
+    'HISTORY_SAVE_PATH': '../results/metrics/training_history.csv',
+    'HYPERPARAMS_SAVE_PATH': '../results/metrics/hyperparameters_log.json'
 }
 
 
@@ -98,7 +98,7 @@ def save_training_history(history, filepath='training_history.csv'):
     print(f"✓ Training history saved to {filepath}")
 
 
-def plot_quick_summary(history, save_path='training_summary.png'):
+def plot_quick_summary(history, save_path='../results/visualizations/training_summary.png'):
     """Create a quick training summary plot."""
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
     
@@ -288,7 +288,7 @@ def main():
     save_training_history(history, HYPERPARAMETERS['HISTORY_SAVE_PATH'])
     
     # Save preprocessing artifacts
-    save_preprocessing_artifacts(scaler, label_encoder)
+    save_preprocessing_artifacts(scaler, label_encoder, '../models')
     
     # Create quick summary plot
     plot_quick_summary(history)
